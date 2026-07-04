@@ -5,7 +5,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::framework::{Page, PageContext, Update};
 use crate::git;
-use crate::pages::{breadcrumb, copy_button, search_bar, split_path};
+use crate::pages::{breadcrumb, copy_button, recent_link, search_bar, split_path};
 
 /// Cap on rendered results to keep the page light on large repos.
 const MAX_RESULTS: usize = 200;
@@ -49,7 +49,12 @@ impl Page for SearchPage {
         html! {
             div id="maudliver-root" class="page" {
                 header class="app-header" {
-                    a href="/" class="home-link" { "PocketRepo" }
+                    div class="header-top" {
+                        a href="/" class="home-link" { "PocketRepo" }
+                        div class="header-actions" {
+                            (recent_link())
+                        }
+                    }
                     (breadcrumb(repo, "", false))
                     (search_bar(repo, &model.query))
                 }

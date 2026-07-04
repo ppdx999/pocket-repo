@@ -204,6 +204,10 @@ main {
   font-weight: 600;
 }
 
+.search-results .recent-repo {
+  color: var(--muted);
+}
+
 /* Repo list */
 .repo-list,
 .tree {

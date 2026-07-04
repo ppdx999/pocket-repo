@@ -3,6 +3,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::config;
 use crate::framework::{Page, PageContext, Update};
+use crate::pages::recent_link;
 
 pub struct ReposPage;
 
@@ -35,7 +36,12 @@ impl Page for ReposPage {
         html! {
             div id="maudliver-root" class="page" {
                 header class="app-header" {
-                    h1 { "PocketRepo" }
+                    div class="header-top" {
+                        h1 { "PocketRepo" }
+                        div class="header-actions" {
+                            (recent_link())
+                        }
+                    }
                 }
                 main {
                     @if repos.is_empty() {

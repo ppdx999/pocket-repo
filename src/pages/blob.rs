@@ -4,7 +4,7 @@ use serde::{Deserialize, Serialize};
 use crate::framework::{Page, PageContext, Update};
 use crate::git::{self, Resolved};
 use crate::highlight;
-use crate::pages::{breadcrumb, copy_button, search_link};
+use crate::pages::{breadcrumb, copy_button, recent_link, search_link};
 
 pub struct BlobPage;
 
@@ -44,12 +44,13 @@ impl Page for BlobPage {
         let file_name = path.rsplit('/').next().unwrap_or(path);
 
         html! {
-            div id="maudliver-root" class="page" {
+            div id="maudliver-root" class="page" data-recent-repo=(repo) data-recent-path=(path) {
                 header class="app-header" {
                     div class="header-top" {
                         a href="/" class="home-link" { "PocketRepo" }
                         div class="header-actions" {
                             (search_link(repo))
+                            (recent_link())
                             (copy_button(path))
                         }
                     }
