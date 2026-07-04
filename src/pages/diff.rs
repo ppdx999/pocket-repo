@@ -141,8 +141,8 @@ fn render_diff(view: &DiffView) -> Markup {
     }
     html! {
         @for file in &view.files {
-            section class="diff-file" {
-                header class="diff-file-header" {
+            details class="diff-file" {
+                summary class="diff-file-header" {
                     span class=(format!("diff-status s-{}", file.status)) { (file.status) }
                     span class="diff-path" { (file_label(file)) }
                     span class="diff-stat" {

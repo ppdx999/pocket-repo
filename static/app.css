@@ -423,14 +423,43 @@ button.entry-icon:active {
   overflow: hidden;
 }
 
+/* File header doubles as the <summary> that expands/collapses the diff body.
+   Collapsed by default; tap to reveal. */
 .diff-file-header {
   display: flex;
   align-items: center;
   gap: 0.5rem;
   padding: 0.5rem 0.6rem;
   background: var(--surface);
-  border-bottom: 1px solid var(--border);
   font-size: 0.85rem;
+  cursor: pointer;
+  list-style: none;
+}
+
+.diff-file-header::-webkit-details-marker {
+  display: none;
+}
+
+.diff-file-header::before {
+  content: "▸";
+  flex: 0 0 auto;
+  color: var(--muted);
+  font-size: 0.7rem;
+}
+
+.diff-file[open] > .diff-file-header::before {
+  content: "▾";
+}
+
+.diff-file[open] > .diff-file-header {
+  border-bottom: 1px solid var(--border);
+}
+
+/* Explicitly hide the body when collapsed — robust regardless of how the
+   browser's native <details> content hiding interacts with a flex summary. */
+.diff-file:not([open]) > .diff-body,
+.diff-file:not([open]) > .diff-note {
+  display: none;
 }
 
 .diff-status {
