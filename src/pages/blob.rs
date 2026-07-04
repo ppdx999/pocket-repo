@@ -4,7 +4,7 @@ use serde::{Deserialize, Serialize};
 use crate::framework::{Page, PageContext, Update};
 use crate::git::{self, Resolved};
 use crate::highlight;
-use crate::pages::{breadcrumb, copy_button, search_bar};
+use crate::pages::{breadcrumb, copy_button, search_link};
 
 pub struct BlobPage;
 
@@ -48,10 +48,12 @@ impl Page for BlobPage {
                 header class="app-header" {
                     div class="header-top" {
                         a href="/" class="home-link" { "PocketRepo" }
-                        (copy_button(path))
+                        div class="header-actions" {
+                            (search_link(repo))
+                            (copy_button(path))
+                        }
                     }
                     (breadcrumb(repo, path, true))
-                    (search_bar(repo, ""))
                 }
                 main {
                     @match git::resolve(repo, path) {

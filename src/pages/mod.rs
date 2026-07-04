@@ -24,6 +24,22 @@ pub fn search_bar(repo: &str, query: &str) -> Markup {
     }
 }
 
+/// A compact magnifier icon linking to the repo's search page. Used in the file
+/// view header where a full-width search bar would crowd the reading area.
+pub fn search_link(repo: &str) -> Markup {
+    html! {
+        a class="icon-action" href=(format!("/repo/{repo}/search"))
+            title="Search files" aria-label="Search files" {
+            svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
+                fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" {
+                circle cx="11" cy="11" r="8" {}
+                path d="m21 21-4.3-4.3" {}
+            }
+        }
+    }
+}
+
 /// Splits a path into its directory prefix (with trailing slash, or "") and its
 /// basename, so results can render the dir muted and the filename emphasized.
 pub fn split_path(path: &str) -> (&str, &str) {

@@ -87,6 +87,27 @@ a {
   padding: 0.25rem 0.4rem;
 }
 
+/* Grouped action icons (search + copy) on the right of the file view header. */
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.15rem;
+}
+
+.header-actions .icon-action {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.25rem 0.4rem;
+  color: var(--muted);
+}
+
+.header-actions .icon-action svg {
+  width: 1.15rem;
+  height: 1.15rem;
+  display: block;
+}
+
 .breadcrumb {
   font-size: 0.95rem;
   word-break: break-all;
