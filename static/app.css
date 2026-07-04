@@ -70,6 +70,23 @@ a {
   margin-bottom: 0.25rem;
 }
 
+/* Header top row: home link on the left, copy-path button on the right. */
+.header-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.header-top .home-link {
+  margin-bottom: 0;
+}
+
+.header-top .copy-btn {
+  align-self: center;
+  padding: 0.25rem 0.4rem;
+}
+
 .breadcrumb {
   font-size: 0.95rem;
   word-break: break-all;
@@ -117,13 +134,20 @@ main {
 }
 
 /* Tree entries — large tap targets for mobile */
-.tree .entry a {
+.tree .entry {
+  display: flex;
+  align-items: center;
+  border-bottom: 1px solid var(--border);
+}
+
+.tree .entry .entry-link {
   display: flex;
   align-items: center;
   gap: 0.6rem;
   padding: 0.85rem 0.5rem;
-  border-bottom: 1px solid var(--border);
   color: var(--fg);
+  flex: 1 1 auto;
+  min-width: 0;
 }
 
 .tree .entry .icon {
@@ -138,6 +162,59 @@ main {
 
 .tree .entry .name {
   word-break: break-all;
+}
+
+/* Copy-path button */
+.copy-btn {
+  flex: 0 0 auto;
+  align-self: stretch;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  padding: 0 0.85rem;
+  color: var(--muted);
+  cursor: pointer;
+  border-radius: 6px;
+  position: relative;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.copy-btn svg {
+  width: 1.15rem;
+  height: 1.15rem;
+  display: block;
+}
+
+.copy-btn:active {
+  background: var(--surface);
+}
+
+/* Success/failure feedback: swap the glyph for a ✓ / ✕ */
+.copy-btn.copied,
+.copy-btn.copy-failed {
+  color: transparent;
+}
+
+.copy-btn.copied::after,
+.copy-btn.copy-failed::after {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+}
+
+.copy-btn.copied::after {
+  content: "✓";
+  color: #16a34a;
+}
+
+.copy-btn.copy-failed::after {
+  content: "✕";
+  color: #dc2626;
 }
 
 /* File content */

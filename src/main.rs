@@ -28,6 +28,13 @@ async fn app_css() -> ([(header::HeaderName, &'static str); 1], &'static str) {
     )
 }
 
+async fn app_js() -> ([(header::HeaderName, &'static str); 1], &'static str) {
+    (
+        [(header::CONTENT_TYPE, "application/javascript")],
+        include_str!("../static/app.js"),
+    )
+}
+
 #[tokio::main]
 async fn main() {
     // Repositories to serve are the CLI arguments; default to the current dir.
@@ -53,6 +60,7 @@ async fn main() {
         .merge(page_routes::<BlobPage>())
         .route("/static/runtime.js", axum::routing::get(runtime_js))
         .route("/static/app.css", axum::routing::get(app_css))
+        .route("/static/app.js", axum::routing::get(app_js))
         .fallback(|| async { (StatusCode::NOT_FOUND, "Not Found") });
 
     let addr = "0.0.0.0:3000";

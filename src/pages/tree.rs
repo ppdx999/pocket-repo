@@ -3,7 +3,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::framework::{Page, PageContext, Update};
 use crate::git::{self, Resolved};
-use crate::pages::{breadcrumb, join_path};
+use crate::pages::{breadcrumb, copy_button, join_path};
 
 pub struct TreePage;
 
@@ -57,7 +57,9 @@ impl Page for TreePage {
                             ul class="tree" {
                                 @if !path.is_empty() {
                                     li class="entry dir" {
-                                        a href=(parent_url(repo, path)) { span class="icon" { ".." } }
+                                        a class="entry-link" href=(parent_url(repo, path)) {
+                                            span class="icon" { ".." }
+                                        }
                                     }
                                 }
                                 @for entry in &entries {
@@ -68,10 +70,11 @@ impl Page for TreePage {
                                         format!("/repo/{repo}/blob/{child}")
                                     };
                                     li class=(if entry.is_dir { "entry dir" } else { "entry file" }) {
-                                        a href=(url) {
+                                        a class="entry-link" href=(url) {
                                             span class="icon" { (if entry.is_dir { "📁" } else { "📄" }) }
                                             span class="name" { (entry.name) }
                                         }
+                                        (copy_button(&child))
                                     }
                                 }
                             }

@@ -41,6 +41,7 @@ async fn render_page<P: Page>(params: RawPathParams, RawQuery(query): RawQuery) 
             body {
                 (content)
                 script data-model=(model_json) src="/static/runtime.js" {}
+                script src="/static/app.js" {}
             }
         }
     };

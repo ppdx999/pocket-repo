@@ -4,7 +4,7 @@ use serde::{Deserialize, Serialize};
 use crate::framework::{Page, PageContext, Update};
 use crate::git::{self, Resolved};
 use crate::highlight;
-use crate::pages::breadcrumb;
+use crate::pages::{breadcrumb, copy_button};
 
 pub struct BlobPage;
 
@@ -46,7 +46,10 @@ impl Page for BlobPage {
         html! {
             div id="maudliver-root" class="page" {
                 header class="app-header" {
-                    a href="/" class="home-link" { "PocketRepo" }
+                    div class="header-top" {
+                        a href="/" class="home-link" { "PocketRepo" }
+                        (copy_button(path))
+                    }
                     (breadcrumb(repo, path, true))
                 }
                 main {

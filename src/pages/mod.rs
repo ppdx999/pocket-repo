@@ -4,6 +4,25 @@ pub mod tree;
 
 use maud::{html, Markup};
 
+/// A button that copies `path` (a repo-root-relative path) to the clipboard.
+/// The click is handled client-side by `static/app.js` via the `data-copy`
+/// attribute; the double-square glyph is an inline SVG so it inherits color.
+pub fn copy_button(path: &str) -> Markup {
+    html! {
+        button type="button" class="copy-btn"
+            data-copy=(path)
+            title="Copy path"
+            aria-label=(format!("Copy path: {path}")) {
+            svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
+                fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" {
+                rect x="8" y="8" width="14" height="14" rx="2" ry="2" {}
+                path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2" {}
+            }
+        }
+    }
+}
+
 /// Joins a directory path and a child name into a clean repo-relative path.
 pub fn join_path(base: &str, name: &str) -> String {
     let base = base.trim_matches('/');
