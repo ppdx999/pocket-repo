@@ -12,6 +12,7 @@ use axum::Router;
 use framework::handler::page_routes;
 use pages::blob::BlobPage;
 use pages::repos::ReposPage;
+use pages::search::SearchPage;
 use pages::tree::TreePage;
 
 async fn runtime_js() -> ([(header::HeaderName, &'static str); 1], &'static str) {
@@ -58,6 +59,7 @@ async fn main() {
         .merge(page_routes::<ReposPage>())
         .merge(page_routes::<TreePage>())
         .merge(page_routes::<BlobPage>())
+        .merge(page_routes::<SearchPage>())
         .route("/static/runtime.js", axum::routing::get(runtime_js))
         .route("/static/app.css", axum::routing::get(app_css))
         .route("/static/app.js", axum::routing::get(app_js))

@@ -15,3 +15,4 @@ maud = { version = "0.26", features = ["axum"] }
 scraper = "0.22"
 git2 = { version = "0.21", default-features = false, features = ["vendored-libgit2"] }
 syntect = { version = "5", default-features = false, features = ["default-fancy"] }
+nucleo-matcher = "0.3.1"

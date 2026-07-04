@@ -3,7 +3,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::framework::{Page, PageContext, Update};
 use crate::git::{self, Resolved};
-use crate::pages::{breadcrumb, copy_button, join_path};
+use crate::pages::{breadcrumb, copy_button, join_path, search_bar};
 
 pub struct TreePage;
 
@@ -50,6 +50,7 @@ impl Page for TreePage {
                 header class="app-header" {
                     a href="/" class="home-link" { "PocketRepo" }
                     (breadcrumb(repo, path, false))
+                    (search_bar(repo, ""))
                 }
                 main {
                     @match git::resolve(repo, path) {

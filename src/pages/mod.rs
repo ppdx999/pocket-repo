@@ -1,8 +1,37 @@
 pub mod blob;
 pub mod repos;
+pub mod search;
 pub mod tree;
 
 use maud::{html, Markup};
+
+/// An always-available file-search box that GETs to the repo's search page.
+/// `query` pre-fills the input (empty on non-search pages).
+pub fn search_bar(repo: &str, query: &str) -> Markup {
+    html! {
+        form class="search-bar" method="get" action=(format!("/repo/{repo}/search")) {
+            input type="search" name="q" value=(query) placeholder="Search files…"
+                autocomplete="off" autocapitalize="off" spellcheck="false";
+            button type="submit" class="search-btn" aria-label="Search" {
+                svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
+                    fill="none" stroke="currentColor" stroke-width="2"
+                    stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" {
+                    circle cx="11" cy="11" r="8" {}
+                    path d="m21 21-4.3-4.3" {}
+                }
+            }
+        }
+    }
+}
+
+/// Splits a path into its directory prefix (with trailing slash, or "") and its
+/// basename, so results can render the dir muted and the filename emphasized.
+pub fn split_path(path: &str) -> (&str, &str) {
+    match path.rfind('/') {
+        Some(i) => (&path[..=i], &path[i + 1..]),
+        None => ("", path),
+    }
+}
 
 /// A button that copies `path` (a repo-root-relative path) to the clipboard.
 /// The click is handled client-side by `static/app.js` via the `data-copy`

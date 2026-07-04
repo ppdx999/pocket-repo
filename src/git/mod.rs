@@ -3,7 +3,7 @@
 
 use std::path::Path;
 
-use git2::{ObjectType, Repository, Tree};
+use git2::{ObjectType, Repository, Tree, TreeWalkMode, TreeWalkResult};
 
 use crate::config;
 
@@ -90,6 +90,25 @@ pub fn resolve(repo_name: &str, path: &str) -> Result<Resolved> {
         }
         _ => Err(GitError::PathNotFound(path.to_string())),
     }
+}
+
+/// Every file path in `HEAD`, recursively (repo-root-relative), for searching.
+pub fn list_files(repo_name: &str) -> Result<Vec<String>> {
+    let repo = open(repo_name)?;
+    let tree = head_tree(&repo)?;
+
+    let mut files = Vec::new();
+    tree.walk(TreeWalkMode::PreOrder, |dir, entry| {
+        if entry.kind() == Some(ObjectType::Blob) {
+            if let Ok(name) = entry.name() {
+                // `dir` is the parent path with a trailing slash (or "" at root).
+                files.push(format!("{dir}{name}"));
+            }
+        }
+        TreeWalkResult::Ok
+    })?;
+
+    Ok(files)
 }
 
 fn list_tree(tree: &Tree) -> Vec<TreeEntry> {
