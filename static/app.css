@@ -145,10 +145,16 @@ main {
   overflow-x: auto;
   border: 1px solid var(--border);
   border-radius: 6px;
-  background: var(--surface);
 }
 
 .file-content pre {
+  /* Grow to the width of the longest line (min = container width) so the
+     syntect theme background covers the full horizontal scroll area, not just
+     the initially visible viewport. */
+  display: block;
+  width: max-content;
+  min-width: 100%;
+  box-sizing: border-box;
   margin: 0;
   padding: 0.75rem;
   font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
