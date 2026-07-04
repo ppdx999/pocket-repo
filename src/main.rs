@@ -39,14 +39,49 @@ async fn app_js() -> ([(header::HeaderName, &'static str); 1], &'static str) {
     )
 }
 
+const HELP: &str = "\
+pocket-repo — browse Git repositories from your phone
+
+USAGE:
+    pocket-repo [OPTIONS] [REPO_PATH]...
+
+OPTIONS:
+    -c, --config <PATH>   Config file (default: ~/.config/pocket-repo/config.toml)
+        --bind <ADDR>     Bind address (default: 0.0.0.0)
+        --port <PORT>     Port (default: 3000)
+    -h, --help            Print this help
+    -V, --version         Print version
+
+REPO_PATH arguments are served in addition to any repos from the config file.
+Config keys: bind, port, repos = [{ path, name }], scan_roots = [\"~/ghq\"].";
+
+/// Minimal flag parsing: `-c/--config <path>`, `--bind <addr>`, `--port <n>`,
+/// `-h/--help`, `-V/--version`, and positional repository paths.
+fn parse_args() -> config::CliOptions {
+    let mut opts = config::CliOptions::default();
+    let mut args = std::env::args().skip(1);
+    while let Some(arg) = args.next() {
+        match arg.as_str() {
+            "-h" | "--help" => {
+                println!("{HELP}");
+                std::process::exit(0);
+            }
+            "-V" | "--version" => {
+                println!("pocket-repo {}", env!("CARGO_PKG_VERSION"));
+                std::process::exit(0);
+            }
+            "-c" | "--config" => opts.config_path = args.next().map(PathBuf::from),
+            "--bind" => opts.bind = args.next(),
+            "--port" => opts.port = args.next().and_then(|v| v.parse().ok()),
+            _ => opts.paths.push(PathBuf::from(arg)),
+        }
+    }
+    opts
+}
+
 #[tokio::main]
 async fn main() {
-    // Repositories to serve are the CLI arguments; default to the current dir.
-    let mut paths: Vec<PathBuf> = std::env::args().skip(1).map(PathBuf::from).collect();
-    if paths.is_empty() {
-        paths.push(PathBuf::from("."));
-    }
-    config::init(paths);
+    let settings = config::load(parse_args());
 
     let repos = config::repos();
     if repos.is_empty() {
@@ -74,8 +109,8 @@ async fn main() {
         // Tailscale, often via a mobile link.
         .layer(CompressionLayer::new());
 
-    let addr = "0.0.0.0:3000";
-    let listener = tokio::net::TcpListener::bind(addr).await.unwrap();
-    println!("Listening on http://localhost:3000");
+    let addr = format!("{}:{}", settings.bind, settings.port);
+    let listener = tokio::net::TcpListener::bind(&addr).await.unwrap();
+    println!("Listening on http://{addr}");
     axum::serve(listener, app).await.unwrap();
 }

@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!--
+  launchd LaunchAgent for PocketRepo (macOS systemd-equivalent).
+  Placeholders __BIN__ and __HOME__ are filled in at install time — see PACKAGING.md.
+  The agent runs the binary with no arguments, so it reads ~/.config/pocket-repo/config.toml.
+-->
+<plist version="1.0">
+<dict>
+  <key>Label</key>
+  <string>com.ppdx999.pocket-repo</string>
+
+  <key>ProgramArguments</key>
+  <array>
+    <string>__BIN__</string>
+  </array>
+
+  <key>EnvironmentVariables</key>
+  <dict>
+    <key>HOME</key>
+    <string>__HOME__</string>
+  </dict>
+
+  <key>RunAtLoad</key>
+  <true/>
+
+  <key>KeepAlive</key>
+  <true/>
+
+  <key>StandardOutPath</key>
+  <string>__HOME__/Library/Logs/pocket-repo.log</string>
+  <key>StandardErrorPath</key>
+  <string>__HOME__/Library/Logs/pocket-repo.log</string>
+</dict>
+</plist>
