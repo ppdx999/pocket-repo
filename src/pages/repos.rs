@@ -47,9 +47,13 @@ impl Page for ReposPage {
                     @if repos.is_empty() {
                         p class="empty" { "No repositories configured. Start the server with paths: " code { "pocket-repo <path>..." } }
                     } @else {
-                        ul class="repo-list" {
+                        div class="repo-filter-bar" {
+                            input type="search" id="repo-filter" placeholder="Filter repositories…"
+                                autocomplete="off" autocapitalize="off" spellcheck="false";
+                        }
+                        ul id="repo-list" class="repo-list" {
                             @for repo in &repos {
-                                li {
+                                li data-name=(repo.name) {
                                     a href=(format!("/repo/{}/tree", repo.name)) class="repo-link" {
                                         span class="repo-name" { (repo.name) }
                                         span class="repo-path" { (repo.path.display().to_string()) }
@@ -57,6 +61,7 @@ impl Page for ReposPage {
                                 }
                             }
                         }
+                        p id="repo-filter-empty" class="notice" hidden { "No matching repositories." }
                     }
                 }
             }

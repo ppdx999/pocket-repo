@@ -100,8 +100,78 @@
     listEl.appendChild(frag);
   }
 
+  // --- Fuzzy filter for the repository list (client-side, instant) ---
+
+  // Subsequence fuzzy score: -1 if `needle` isn't a subsequence of `haystack`,
+  // otherwise a score that rewards consecutive matches and word boundaries.
+  function fuzzyScore(needle, haystack) {
+    needle = needle.toLowerCase();
+    haystack = haystack.toLowerCase();
+    var n = 0;
+    var score = 0;
+    var lastIdx = -1;
+    var run = 0;
+    for (var h = 0; h < haystack.length && n < needle.length; h++) {
+      if (haystack[h] === needle[n]) {
+        var bonus = 1;
+        if (lastIdx === h - 1) {
+          run += 1;
+          bonus += run * 2;
+        } else {
+          run = 0;
+        }
+        if (h === 0 || /[^a-z0-9]/.test(haystack[h - 1])) bonus += 3;
+        score += bonus;
+        lastIdx = h;
+        n += 1;
+      }
+    }
+    return n === needle.length ? score : -1;
+  }
+
+  function initRepoFilter() {
+    var input = document.getElementById("repo-filter");
+    var list = document.getElementById("repo-list");
+    if (!input || !list) return;
+    var empty = document.getElementById("repo-filter-empty");
+    var items = Array.prototype.slice.call(list.children); // original order
+
+    function apply() {
+      var q = input.value.trim();
+      if (!q) {
+        items.forEach(function (li) {
+          li.style.display = "";
+          list.appendChild(li);
+        });
+        if (empty) empty.hidden = true;
+        return;
+      }
+      var scored = [];
+      items.forEach(function (li) {
+        var name = li.getAttribute("data-name") || li.textContent;
+        var s = fuzzyScore(q, name);
+        if (s >= 0) {
+          scored.push({ li: li, s: s });
+        } else {
+          li.style.display = "none";
+        }
+      });
+      scored.sort(function (a, b) {
+        return b.s - a.s;
+      });
+      scored.forEach(function (it) {
+        it.li.style.display = "";
+        list.appendChild(it.li); // reorder by score
+      });
+      if (empty) empty.hidden = scored.length > 0;
+    }
+
+    input.addEventListener("input", apply);
+  }
+
   recordRecent();
   renderRecent();
+  initRepoFilter();
 
   // Delegated so it keeps working after maudliver replaces DOM nodes.
   document.addEventListener("click", function (e) {

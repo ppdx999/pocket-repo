@@ -216,6 +216,22 @@ main {
   padding: 0;
 }
 
+.repo-filter-bar {
+  margin: 0 0 0.5rem;
+}
+
+#repo-filter {
+  width: 100%;
+  padding: 0.55rem 0.7rem;
+  font-size: 1rem;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface);
+  color: var(--fg);
+  -webkit-appearance: none;
+  appearance: none;
+}
+
 .repo-link {
   display: flex;
   flex-direction: column;
