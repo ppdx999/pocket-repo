@@ -440,17 +440,6 @@ button.entry-icon:active {
   display: none;
 }
 
-.diff-file-header::before {
-  content: "▸";
-  flex: 0 0 auto;
-  color: var(--muted);
-  font-size: 0.7rem;
-}
-
-.diff-file[open] > .diff-file-header::before {
-  content: "▾";
-}
-
 .diff-file[open] > .diff-file-header {
   border-bottom: 1px solid var(--border);
 }
