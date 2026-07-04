@@ -1,0 +1,174 @@
+:root {
+  --bg: #ffffff;
+  --fg: #1a1a1a;
+  --muted: #6b7280;
+  --border: #e5e7eb;
+  --accent: #2563eb;
+  --surface: #f9fafb;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #0f1115;
+    --fg: #e5e7eb;
+    --muted: #9ca3af;
+    --border: #262b36;
+    --accent: #60a5fa;
+    --surface: #171a21;
+  }
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  background: var(--bg);
+  color: var(--fg);
+  font-size: 16px;
+  line-height: 1.5;
+}
+
+a {
+  color: var(--accent);
+  text-decoration: none;
+}
+
+.page {
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+/* Header / breadcrumb */
+.app-header {
+  position: sticky;
+  top: 0;
+  background: var(--bg);
+  border-bottom: 1px solid var(--border);
+  padding: 0.75rem 1rem calc(0.75rem + env(safe-area-inset-bottom, 0));
+  padding-left: max(1rem, env(safe-area-inset-left));
+  padding-right: max(1rem, env(safe-area-inset-right));
+  z-index: 10;
+}
+
+.app-header h1 {
+  margin: 0;
+  font-size: 1.25rem;
+}
+
+.home-link {
+  display: inline-block;
+  font-weight: 600;
+  font-size: 0.8rem;
+  color: var(--muted);
+  margin-bottom: 0.25rem;
+}
+
+.breadcrumb {
+  font-size: 0.95rem;
+  word-break: break-all;
+}
+
+.breadcrumb .sep {
+  color: var(--muted);
+  margin: 0 0.35rem;
+}
+
+.crumb-current {
+  color: var(--fg);
+  font-weight: 600;
+}
+
+main {
+  padding: 0.5rem 1rem 3rem;
+  padding-left: max(1rem, env(safe-area-inset-left));
+  padding-right: max(1rem, env(safe-area-inset-right));
+}
+
+/* Repo list */
+.repo-list,
+.tree {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.repo-link {
+  display: flex;
+  flex-direction: column;
+  padding: 0.9rem 0.5rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.repo-name {
+  font-weight: 600;
+  color: var(--fg);
+}
+
+.repo-path {
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+
+/* Tree entries — large tap targets for mobile */
+.tree .entry a {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.85rem 0.5rem;
+  border-bottom: 1px solid var(--border);
+  color: var(--fg);
+}
+
+.tree .entry .icon {
+  width: 1.4rem;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.tree .entry.dir .name {
+  font-weight: 500;
+}
+
+.tree .entry .name {
+  word-break: break-all;
+}
+
+/* File content */
+.file-content {
+  overflow-x: auto;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--surface);
+}
+
+.file-content pre {
+  margin: 0;
+  padding: 0.75rem;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.8rem;
+  line-height: 1.45;
+  tab-size: 4;
+}
+
+.notice,
+.empty {
+  color: var(--muted);
+  padding: 1rem 0.5rem;
+}
+
+.error {
+  color: #dc2626;
+  padding: 1rem 0.5rem;
+}
+
+code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.85em;
+}
