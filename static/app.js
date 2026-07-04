@@ -169,9 +169,42 @@
     input.addEventListener("input", apply);
   }
 
+  // --- Persist tree expansion state per repo/root (localStorage) ---
+  function treeKey(model) {
+    return "pocketrepo:tree:" + model.repo + ":" + (model.path || "");
+  }
+
+  function isTreeModel(model) {
+    return model && Array.isArray(model.expanded) && typeof model.repo === "string";
+  }
+
+  function initTreeState() {
+    if (!window.maudliver) return;
+
+    // Save on every model update (toggles, restore).
+    window.maudliver.onModel = function (model) {
+      if (!isTreeModel(model)) return;
+      try {
+        localStorage.setItem(treeKey(model), JSON.stringify(model.expanded));
+      } catch (e) {}
+    };
+
+    // Restore saved expansion once on load (one round-trip re-renders expanded).
+    var model = window.maudliver.model;
+    if (!isTreeModel(model)) return;
+    var saved = [];
+    try {
+      saved = JSON.parse(localStorage.getItem(treeKey(model))) || [];
+    } catch (e) {}
+    if (saved.length && JSON.stringify(saved) !== JSON.stringify(model.expanded)) {
+      window.maudliver.send("RestoreExpanded", { paths: saved });
+    }
+  }
+
   recordRecent();
   renderRecent();
   initRepoFilter();
+  initTreeState();
 
   // Delegated so it keeps working after maudliver replaces DOM nodes.
   document.addEventListener("click", function (e) {

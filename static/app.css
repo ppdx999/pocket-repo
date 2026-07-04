@@ -250,34 +250,58 @@ main {
 }
 
 /* Tree entries — large tap targets for mobile */
-.tree .entry {
+.tree .entry-row {
   display: flex;
   align-items: center;
   border-bottom: 1px solid var(--border);
 }
 
-.tree .entry .entry-link {
+.tree .entry-link {
   display: flex;
   align-items: center;
-  gap: 0.6rem;
   padding: 0.85rem 0.5rem;
   color: var(--fg);
   flex: 1 1 auto;
   min-width: 0;
 }
 
-.tree .entry .icon {
-  width: 1.4rem;
-  text-align: center;
-  flex-shrink: 0;
+/* Leading icon. For directories it's a button that toggles in-page expansion
+   (📁 closed / 📂 open); for files it's a static span. Same width so names line up. */
+.tree .entry-icon {
+  flex: 0 0 auto;
+  width: 2.4rem;
+  align-self: stretch;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+  color: inherit;
+  background: none;
+  border: none;
+  padding: 0;
+  font-family: inherit;
 }
 
-.tree .entry.dir .name {
+button.entry-icon {
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+button.entry-icon:active {
+  background: var(--surface);
+}
+
+.tree .entry.dir > .entry-row .name {
   font-weight: 500;
 }
 
-.tree .entry .name {
+.tree .name {
   word-break: break-all;
+}
+
+/* Nested children indent under their parent directory */
+.children {
+  padding-left: 1rem;
 }
 
 /* Copy-path button */
