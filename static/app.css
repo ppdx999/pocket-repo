@@ -123,6 +123,77 @@ a {
   font-weight: 600;
 }
 
+/* Current branch/ref chip → ref picker */
+.branch-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  margin-top: 0.4rem;
+  padding: 0.2rem 0.6rem;
+  max-width: 100%;
+  font-size: 0.8rem;
+  font-weight: 600;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  color: var(--fg);
+}
+
+.branch-chip svg {
+  width: 0.9rem;
+  height: 0.9rem;
+  flex: 0 0 auto;
+  color: var(--muted);
+}
+
+.branch-chip .branch-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Refs (branches & tags) list */
+.ref-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.ref-link {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.85rem 0.5rem;
+  border-bottom: 1px solid var(--border);
+  color: var(--fg);
+}
+
+.ref-name {
+  flex: 1 1 auto;
+  min-width: 0;
+  word-break: break-all;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.9rem;
+}
+
+.ref-badge {
+  flex: 0 0 auto;
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 0.1rem 0.45rem;
+  border-radius: 4px;
+}
+
+.ref-badge.head {
+  background: #16a34a;
+  color: #fff;
+}
+
+.ref-badge.tag {
+  background: var(--surface);
+  color: var(--muted);
+  border: 1px solid var(--border);
+}
+
 main {
   padding: 0.5rem 1rem 3rem;
   padding-left: max(1rem, env(safe-area-inset-left));

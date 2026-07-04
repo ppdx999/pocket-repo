@@ -14,6 +14,7 @@ use framework::handler::page_routes;
 use pages::blob::BlobPage;
 use pages::diff::DiffPage;
 use pages::recent::RecentPage;
+use pages::refs::RefsPage;
 use pages::repos::ReposPage;
 use pages::search::SearchPage;
 use pages::tree::TreePage;
@@ -100,6 +101,7 @@ async fn main() {
         .merge(page_routes::<SearchPage>())
         .merge(page_routes::<DiffPage>())
         .merge(page_routes::<RecentPage>())
+        .merge(page_routes::<RefsPage>())
         .route("/static/runtime.js", axum::routing::get(runtime_js))
         .route("/static/app.css", axum::routing::get(app_css))
         .route("/static/app.js", axum::routing::get(app_js))

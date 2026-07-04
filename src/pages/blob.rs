@@ -4,7 +4,7 @@ use serde::{Deserialize, Serialize};
 use crate::framework::{Page, PageContext, Update};
 use crate::git::{self, Resolved};
 use crate::highlight;
-use crate::pages::{breadcrumb, copy_button, recent_link, search_link};
+use crate::pages::{breadcrumb, branch_chip, copy_button, recent_link, ref_query, search_link};
 
 pub struct BlobPage;
 
@@ -12,6 +12,8 @@ pub struct BlobPage;
 pub struct Model {
     pub repo: String,
     pub path: String,
+    #[serde(default, rename = "ref")]
+    pub ref_name: Option<String>,
 }
 
 #[derive(Serialize, Deserialize)]
@@ -31,6 +33,7 @@ impl Page for BlobPage {
         Model {
             repo: ctx.param_or_empty("repo").to_string(),
             path: ctx.param_or_empty("path").trim_matches('/').to_string(),
+            ref_name: ctx.query("ref").filter(|s| !s.is_empty()).map(String::from),
         }
     }
 
@@ -41,7 +44,14 @@ impl Page for BlobPage {
     fn view(model: &Model) -> Markup {
         let repo = &model.repo;
         let path = &model.path;
+        let ref_name = model.ref_name.as_deref();
+        let rq = ref_query(ref_name);
         let file_name = path.rsplit('/').next().unwrap_or(path);
+        let branch = model
+            .ref_name
+            .clone()
+            .or_else(|| git::head_branch(repo))
+            .unwrap_or_else(|| "HEAD".to_string());
 
         html! {
             div id="maudliver-root" class="page" data-recent-repo=(repo) data-recent-path=(path) {
@@ -49,15 +59,16 @@ impl Page for BlobPage {
                     div class="header-top" {
                         a href="/" class="home-link" { "PocketRepo" }
                         div class="header-actions" {
-                            (search_link(repo))
+                            (search_link(repo, ref_name))
                             (recent_link())
                             (copy_button(path))
                         }
                     }
-                    (breadcrumb(repo, path, true))
+                    (breadcrumb(repo, path, ref_name, true))
+                    (branch_chip(repo, &branch))
                 }
                 main {
-                    @match git::resolve(repo, path) {
+                    @match git::resolve(repo, ref_name, path) {
                         Ok(Resolved::File(blob)) => {
                             @if blob.is_binary {
                                 p class="notice" { "Binary file not shown (" (blob.content.len()) " bytes)" }
@@ -77,7 +88,7 @@ impl Page for BlobPage {
                         Ok(Resolved::Dir(_)) => {
                             p class="notice" {
                                 "This path is a directory. "
-                                a href=(format!("/repo/{repo}/tree/{path}")) { "Browse directory" }
+                                a href=(format!("/repo/{repo}/tree/{path}{rq}")) { "Browse directory" }
                             }
                         }
                         Err(e) => {

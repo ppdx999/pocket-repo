@@ -106,7 +106,7 @@ fn render(model: &Model) -> Markup {
         div id="maudliver-root" class="page" {
             header class="app-header" {
                 a href="/" class="home-link" { "PocketRepo" }
-                (breadcrumb(repo, "", false))
+                (breadcrumb(repo, "", None, false))
                 div class="diff-nav" {
                     (nav_button("← Newer", newer_url.as_deref()))
                     div class="diff-pos" {

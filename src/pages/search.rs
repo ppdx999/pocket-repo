@@ -5,7 +5,9 @@ use serde::{Deserialize, Serialize};
 
 use crate::framework::{Page, PageContext, Update};
 use crate::git;
-use crate::pages::{breadcrumb, copy_button, recent_link, search_bar, split_path};
+use crate::pages::{
+    branch_chip, breadcrumb, copy_button, recent_link, ref_query, search_bar, split_path,
+};
 
 /// Cap on rendered results to keep the page light on large repos.
 const MAX_RESULTS: usize = 200;
@@ -16,6 +18,8 @@ pub struct SearchPage;
 pub struct Model {
     pub repo: String,
     pub query: String,
+    #[serde(default, rename = "ref")]
+    pub ref_name: Option<String>,
 }
 
 #[derive(Serialize, Deserialize)]
@@ -35,6 +39,7 @@ impl Page for SearchPage {
         Model {
             repo: ctx.param_or_empty("repo").to_string(),
             query: ctx.query("q").unwrap_or("").to_string(),
+            ref_name: ctx.query("ref").filter(|s| !s.is_empty()).map(String::from),
         }
     }
 
@@ -45,6 +50,13 @@ impl Page for SearchPage {
     fn view(model: &Model) -> Markup {
         let repo = &model.repo;
         let query = model.query.trim();
+        let ref_name = model.ref_name.as_deref();
+        let rq = ref_query(ref_name);
+        let branch = model
+            .ref_name
+            .clone()
+            .or_else(|| git::head_branch(repo))
+            .unwrap_or_else(|| "HEAD".to_string());
 
         html! {
             div id="maudliver-root" class="page" {
@@ -55,15 +67,16 @@ impl Page for SearchPage {
                             (recent_link())
                         }
                     }
-                    (breadcrumb(repo, "", false))
-                    (search_bar(repo, &model.query))
+                    (breadcrumb(repo, "", ref_name, false))
+                    (branch_chip(repo, &branch))
+                    (search_bar(repo, &model.query, ref_name))
                 }
                 main {
                     @if query.is_empty() {
                         p class="notice" { "Type a filename to search " (repo) "." }
                     } @else {
-                        @match git::list_files(repo) {
-                            Ok(all) => (results(repo, query, &all)),
+                        @match git::list_files(repo, ref_name) {
+                            Ok(all) => (results(repo, query, &rq, &all)),
                             Err(e) => p class="error" { (e.to_string()) },
                         }
                     }
@@ -73,7 +86,7 @@ impl Page for SearchPage {
     }
 }
 
-fn results(repo: &str, query: &str, all: &[String]) -> Markup {
+fn results(repo: &str, query: &str, rq: &str, all: &[String]) -> Markup {
     // Fuzzy match + rank via nucleo (the matcher Helix uses). `match_paths`
     // tunes scoring for file paths; `match_list` filters non-matches and
     // returns hits sorted by descending score.
@@ -97,7 +110,7 @@ fn results(repo: &str, query: &str, all: &[String]) -> Markup {
             @for (path, _score) in shown {
                 @let (dir, base) = split_path(path);
                 li class="result" {
-                    a href=(format!("/repo/{repo}/blob/{path}")) {
+                    a href=(format!("/repo/{repo}/blob/{path}{rq}")) {
                         @if !dir.is_empty() { span class="path-dir" { (dir) } }
                         span class="path-base" { (base) }
                     }

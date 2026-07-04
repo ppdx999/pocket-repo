@@ -1,19 +1,50 @@
 pub mod blob;
 pub mod diff;
 pub mod recent;
+pub mod refs;
 pub mod repos;
 pub mod search;
 pub mod tree;
 
 use maud::{html, Markup};
 
+/// A `?ref=<name>` query suffix to carry the selected branch/tag through links,
+/// or `""` when viewing the default `HEAD`.
+pub fn ref_query(ref_name: Option<&str>) -> String {
+    match ref_name {
+        Some(r) if !r.is_empty() => format!("?ref={r}"),
+        _ => String::new(),
+    }
+}
+
+/// A chip showing the current branch/ref, linking to the ref picker.
+pub fn branch_chip(repo: &str, name: &str) -> Markup {
+    html! {
+        a class="branch-chip" href=(format!("/repo/{repo}/refs"))
+            title="Switch branch or tag" {
+            svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
+                fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" {
+                line x1="6" y1="3" x2="6" y2="15" {}
+                circle cx="18" cy="6" r="3" {}
+                circle cx="6" cy="18" r="3" {}
+                path d="M18 9a9 9 0 0 1-9 9" {}
+            }
+            span class="branch-name" { (name) }
+        }
+    }
+}
+
 /// An always-available file-search box that GETs to the repo's search page.
-/// `query` pre-fills the input (empty on non-search pages).
-pub fn search_bar(repo: &str, query: &str) -> Markup {
+/// `query` pre-fills the input; `ref_name` is preserved as a hidden field.
+pub fn search_bar(repo: &str, query: &str, ref_name: Option<&str>) -> Markup {
     html! {
         form class="search-bar" method="get" action=(format!("/repo/{repo}/search")) {
             input type="search" name="q" value=(query) placeholder="Search files…"
                 autocomplete="off" autocapitalize="off" spellcheck="false";
+            @if let Some(r) = ref_name {
+                input type="hidden" name="ref" value=(r);
+            }
             button type="submit" class="search-btn" aria-label="Search" {
                 svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
                     fill="none" stroke="currentColor" stroke-width="2"
@@ -28,9 +59,9 @@ pub fn search_bar(repo: &str, query: &str) -> Markup {
 
 /// A compact magnifier icon linking to the repo's search page. Used in the file
 /// view header where a full-width search bar would crowd the reading area.
-pub fn search_link(repo: &str) -> Markup {
+pub fn search_link(repo: &str, ref_name: Option<&str>) -> Markup {
     html! {
-        a class="icon-action" href=(format!("/repo/{repo}/search"))
+        a class="icon-action" href=(format!("/repo/{repo}/search{}", ref_query(ref_name)))
             title="Search files" aria-label="Search files" {
             svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
                 fill="none" stroke="currentColor" stroke-width="2"
@@ -107,8 +138,9 @@ struct Crumb {
 ///
 /// `leaf_is_file` controls whether the final segment is a plain label (a file,
 /// which has no tree URL) or a link.
-pub fn breadcrumb(repo: &str, path: &str, leaf_is_file: bool) -> Markup {
+pub fn breadcrumb(repo: &str, path: &str, ref_name: Option<&str>, leaf_is_file: bool) -> Markup {
     let segments: Vec<&str> = path.split('/').filter(|s| !s.is_empty()).collect();
+    let rq = ref_query(ref_name);
 
     let mut crumbs = Vec::new();
     let mut acc = String::new();
@@ -118,7 +150,7 @@ pub fn breadcrumb(repo: &str, path: &str, leaf_is_file: bool) -> Markup {
         let href = if is_last && leaf_is_file {
             None
         } else {
-            Some(format!("/repo/{repo}/tree/{acc}"))
+            Some(format!("/repo/{repo}/tree/{acc}{rq}"))
         };
         crumbs.push(Crumb {
             label: seg.to_string(),
@@ -128,7 +160,7 @@ pub fn breadcrumb(repo: &str, path: &str, leaf_is_file: bool) -> Markup {
 
     html! {
         nav id="breadcrumb" class="breadcrumb" {
-            a href=(format!("/repo/{repo}/tree")) { (repo) }
+            a href=(format!("/repo/{repo}/tree{rq}")) { (repo) }
             @for crumb in &crumbs {
                 span class="sep" { "/" }
                 @match &crumb.href {

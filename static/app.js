@@ -171,7 +171,9 @@
 
   // --- Persist tree expansion state per repo/root (localStorage) ---
   function treeKey(model) {
-    return "pocketrepo:tree:" + model.repo + ":" + (model.path || "");
+    return (
+      "pocketrepo:tree:" + model.repo + ":" + (model.path || "") + ":" + (model.ref || "")
+    );
   }
 
   function isTreeModel(model) {

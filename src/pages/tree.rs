@@ -5,7 +5,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::framework::{Page, PageContext, Update};
 use crate::git::{self, Resolved};
-use crate::pages::{breadcrumb, copy_button, join_path, recent_link, search_link};
+use crate::pages::{breadcrumb, branch_chip, copy_button, join_path, recent_link, ref_query, search_link};
 
 pub struct TreePage;
 
@@ -13,6 +13,9 @@ pub struct TreePage;
 pub struct Model {
     pub repo: String,
     pub path: String,
+    /// Selected branch/tag/oid, or `None` for the default `HEAD`.
+    #[serde(default, rename = "ref")]
+    pub ref_name: Option<String>,
     /// Repo-relative paths of directories expanded in-page. UI state only;
     /// `view()` re-reads git for each expanded dir.
     #[serde(default)]
@@ -46,6 +49,7 @@ impl Page for TreePage {
         Model {
             repo: ctx.param_or_empty("repo").to_string(),
             path: ctx.param_or_empty("path").trim_matches('/').to_string(),
+            ref_name: ctx.query("ref").filter(|s| !s.is_empty()).map(String::from),
             expanded: Vec::new(),
         }
     }
@@ -77,7 +81,14 @@ impl Page for TreePage {
     fn view(model: &Model) -> Markup {
         let repo = &model.repo;
         let path = &model.path;
+        let ref_name = model.ref_name.as_deref();
+        let rq = ref_query(ref_name);
         let expanded: HashSet<&str> = model.expanded.iter().map(String::as_str).collect();
+        let branch = model
+            .ref_name
+            .clone()
+            .or_else(|| git::head_branch(repo))
+            .unwrap_or_else(|| "HEAD".to_string());
 
         html! {
             div id="maudliver-root" class="page" {
@@ -85,34 +96,35 @@ impl Page for TreePage {
                     div class="header-top" {
                         a href="/" class="home-link" { "PocketRepo" }
                         div class="header-actions" {
-                            (search_link(repo))
+                            (search_link(repo, ref_name))
                             (recent_link())
                             a class="text-action" href=(format!("/repo/{repo}/diff")) { "Changes" }
                         }
                     }
-                    (breadcrumb(repo, path, false))
+                    (breadcrumb(repo, path, ref_name, false))
+                    (branch_chip(repo, &branch))
                 }
                 main {
-                    @match git::resolve(repo, path) {
+                    @match git::resolve(repo, ref_name, path) {
                         Ok(Resolved::Dir(_)) => {
                             ul class="tree" {
                                 @if !path.is_empty() {
                                     li class="entry dir" {
                                         div class="entry-row" {
                                             span class="entry-icon" { "↩" }
-                                            a class="entry-link" href=(parent_url(repo, path)) {
+                                            a class="entry-link" href=(format!("{}{rq}", parent_url(repo, path))) {
                                                 span class="name" { ".." }
                                             }
                                         }
                                     }
                                 }
-                                (entries_markup(repo, path, &expanded))
+                                (entries_markup(repo, path, ref_name, &rq, &expanded))
                             }
                         }
                         Ok(Resolved::File(_)) => {
                             p class="notice" {
                                 "This path is a file. "
-                                a href=(format!("/repo/{repo}/blob/{path}")) { "View file" }
+                                a href=(format!("/repo/{repo}/blob/{path}{rq}")) { "View file" }
                             }
                         }
                         Err(e) => {
@@ -126,8 +138,14 @@ impl Page for TreePage {
 }
 
 /// Renders the `<li>` entries for `dir`, recursing into expanded subdirectories.
-fn entries_markup(repo: &str, dir: &str, expanded: &HashSet<&str>) -> Markup {
-    match git::resolve(repo, dir) {
+fn entries_markup(
+    repo: &str,
+    dir: &str,
+    ref_name: Option<&str>,
+    rq: &str,
+    expanded: &HashSet<&str>,
+) -> Markup {
+    match git::resolve(repo, ref_name, dir) {
         Ok(Resolved::Dir(entries)) => html! {
             @for entry in &entries {
                 @let child = join_path(dir, &entry.name);
@@ -140,14 +158,14 @@ fn entries_markup(repo: &str, dir: &str, expanded: &HashSet<&str>) -> Markup {
                                 aria-label="Expand/collapse" {
                                 (if open { "📂" } else { "📁" })
                             }
-                            a class="entry-link" href=(format!("/repo/{repo}/tree/{child}")) {
+                            a class="entry-link" href=(format!("/repo/{repo}/tree/{child}{rq}")) {
                                 span class="name" { (entry.name) }
                             }
                             (copy_button(&child))
                         }
                         @if open {
                             div class="children" {
-                                ul class="tree" { (entries_markup(repo, &child, expanded)) }
+                                ul class="tree" { (entries_markup(repo, &child, ref_name, rq, expanded)) }
                             }
                         }
                     }
@@ -155,7 +173,7 @@ fn entries_markup(repo: &str, dir: &str, expanded: &HashSet<&str>) -> Markup {
                     li class="entry file" {
                         div class="entry-row" {
                             span class="entry-icon" { "📄" }
-                            a class="entry-link" href=(format!("/repo/{repo}/blob/{child}")) {
+                            a class="entry-link" href=(format!("/repo/{repo}/blob/{child}{rq}")) {
                                 span class="name" { (entry.name) }
                             }
                             (copy_button(&child))

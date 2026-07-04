@@ -5,7 +5,7 @@
 use std::path::Path;
 
 use git2::{
-    Delta, DiffFlags, DiffOptions, ObjectType, Patch, Repository, Tree, TreeWalkMode,
+    BranchType, Delta, DiffFlags, DiffOptions, ObjectType, Patch, Repository, Tree, TreeWalkMode,
     TreeWalkResult,
 };
 
@@ -15,6 +15,7 @@ use crate::config;
 #[derive(Debug)]
 pub enum GitError {
     RepoNotFound(String),
+    RefNotFound(String),
     PathNotFound(String),
     Git(git2::Error),
 }
@@ -23,6 +24,7 @@ impl std::fmt::Display for GitError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
             GitError::RepoNotFound(name) => write!(f, "repository not found: {name}"),
+            GitError::RefNotFound(r) => write!(f, "ref not found: {r}"),
             GitError::PathNotFound(path) => write!(f, "path not found: {path}"),
             GitError::Git(e) => write!(f, "git error: {}", e.message()),
         }
@@ -65,11 +67,75 @@ fn head_tree(repo: &Repository) -> Result<Tree<'_>> {
     Ok(repo.head()?.peel_to_tree()?)
 }
 
-/// Resolves `path` (relative to the repo root, `""` for root) against `HEAD`,
-/// returning either a directory listing or a file blob.
-pub fn resolve(repo_name: &str, path: &str) -> Result<Resolved> {
+/// The tree for a ref (branch/tag/oid), or `HEAD` when `ref_name` is `None`.
+fn tree_for_ref<'a>(repo: &'a Repository, ref_name: Option<&str>) -> Result<Tree<'a>> {
+    match ref_name {
+        None => head_tree(repo),
+        Some(r) => Ok(repo
+            .revparse_single(r)
+            .map_err(|_| GitError::RefNotFound(r.to_string()))?
+            .peel_to_tree()?),
+    }
+}
+
+/// The current branch name (`HEAD` shorthand), if on a branch.
+pub fn head_branch(repo_name: &str) -> Option<String> {
+    let repo = open(repo_name).ok()?;
+    let head = repo.head().ok()?;
+    head.shorthand().ok().map(String::from)
+}
+
+/// A branch or tag, for the refs picker.
+#[derive(Debug, Clone)]
+pub struct RefInfo {
+    pub name: String,
+    pub is_tag: bool,
+    pub is_head: bool,
+}
+
+/// Local branches (current first) followed by tags.
+pub fn list_refs(repo_name: &str) -> Result<Vec<RefInfo>> {
     let repo = open(repo_name)?;
-    let root = head_tree(&repo)?;
+
+    let mut branches: Vec<RefInfo> = Vec::new();
+    for entry in repo.branches(Some(BranchType::Local))? {
+        let (branch, _) = entry?;
+        let is_head = branch.is_head();
+        if let Some(name) = branch.name()?.map(String::from) {
+            branches.push(RefInfo {
+                name,
+                is_tag: false,
+                is_head,
+            });
+        }
+    }
+    branches.sort_by(|a, b| {
+        b.is_head
+            .cmp(&a.is_head)
+            .then_with(|| a.name.to_lowercase().cmp(&b.name.to_lowercase()))
+    });
+
+    let mut tags: Vec<RefInfo> = repo
+        .tag_names(None)?
+        .iter()
+        .filter_map(|r| r.ok().flatten())
+        .map(|name| RefInfo {
+            name: name.to_string(),
+            is_tag: true,
+            is_head: false,
+        })
+        .collect();
+    tags.sort_by(|a, b| a.name.to_lowercase().cmp(&b.name.to_lowercase()));
+
+    branches.extend(tags);
+    Ok(branches)
+}
+
+/// Resolves `path` (relative to the repo root, `""` for root) against `ref_name`
+/// (or `HEAD`), returning either a directory listing or a file blob.
+pub fn resolve(repo_name: &str, ref_name: Option<&str>, path: &str) -> Result<Resolved> {
+    let repo = open(repo_name)?;
+    let root = tree_for_ref(&repo, ref_name)?;
 
     let path = path.trim_matches('/');
     let object = if path.is_empty() {
@@ -96,10 +162,10 @@ pub fn resolve(repo_name: &str, path: &str) -> Result<Resolved> {
     }
 }
 
-/// Every file path in `HEAD`, recursively (repo-root-relative), for searching.
-pub fn list_files(repo_name: &str) -> Result<Vec<String>> {
+/// Every file path in `ref_name` (or `HEAD`), recursively (repo-root-relative).
+pub fn list_files(repo_name: &str, ref_name: Option<&str>) -> Result<Vec<String>> {
     let repo = open(repo_name)?;
-    let tree = head_tree(&repo)?;
+    let tree = tree_for_ref(&repo, ref_name)?;
 
     let mut files = Vec::new();
     tree.walk(TreeWalkMode::PreOrder, |dir, entry| {
