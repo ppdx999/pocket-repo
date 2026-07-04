@@ -8,6 +8,7 @@ use std::path::PathBuf;
 
 use axum::http::{header, StatusCode};
 use axum::Router;
+use tower_http::compression::CompressionLayer;
 
 use framework::handler::page_routes;
 use pages::blob::BlobPage;
@@ -67,7 +68,11 @@ async fn main() {
         .route("/static/runtime.js", axum::routing::get(runtime_js))
         .route("/static/app.css", axum::routing::get(app_css))
         .route("/static/app.js", axum::routing::get(app_js))
-        .fallback(|| async { (StatusCode::NOT_FOUND, "Not Found") });
+        .fallback(|| async { (StatusCode::NOT_FOUND, "Not Found") })
+        // Negotiates br / zstd / gzip from Accept-Encoding — worthwhile since
+        // pages (highlighted files, diffs) are repetitive text served over
+        // Tailscale, often via a mobile link.
+        .layer(CompressionLayer::new());
 
     let addr = "0.0.0.0:3000";
     let listener = tokio::net::TcpListener::bind(addr).await.unwrap();
