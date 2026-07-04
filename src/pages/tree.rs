@@ -48,7 +48,10 @@ impl Page for TreePage {
         html! {
             div id="maudliver-root" class="page" {
                 header class="app-header" {
-                    a href="/" class="home-link" { "PocketRepo" }
+                    div class="header-top" {
+                        a href="/" class="home-link" { "PocketRepo" }
+                        a class="text-action" href=(format!("/repo/{repo}/diff")) { "Changes" }
+                    }
                     (breadcrumb(repo, path, false))
                     (search_bar(repo, ""))
                 }

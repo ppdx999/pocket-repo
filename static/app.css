@@ -313,6 +313,171 @@ main {
   color: #dc2626;
 }
 
+/* Small text-link action (e.g. "Changes") in a header top row. */
+.text-action {
+  font-size: 0.8rem;
+  font-weight: 600;
+  padding: 0.25rem 0.6rem;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  color: var(--accent);
+}
+
+/* Diff timeline navigation */
+.diff-nav {
+  display: flex;
+  align-items: stretch;
+  gap: 0.4rem;
+  margin-top: 0.5rem;
+}
+
+.diff-pos {
+  flex: 1 1 auto;
+  min-width: 0;
+  text-align: center;
+}
+
+.diff-title {
+  font-weight: 600;
+  font-size: 0.9rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.diff-sub {
+  font-size: 0.75rem;
+  color: var(--muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.nav-btn {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  font-size: 0.8rem;
+  font-weight: 600;
+  padding: 0.25rem 0.6rem;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: var(--accent);
+  white-space: nowrap;
+}
+
+.nav-btn.disabled {
+  color: var(--muted);
+  opacity: 0.4;
+}
+
+/* Diff body */
+.diff-file {
+  margin: 0 0 1.25rem;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.diff-file-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.6rem;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  font-size: 0.85rem;
+}
+
+.diff-status {
+  flex: 0 0 auto;
+  width: 1.3rem;
+  height: 1.3rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  font-weight: 700;
+  font-size: 0.75rem;
+  color: #fff;
+  background: var(--muted);
+}
+
+.s-A { background: #16a34a; }
+.s-M { background: #d97706; }
+.s-D { background: #dc2626; }
+.s-R { background: #2563eb; }
+
+.diff-path {
+  flex: 1 1 auto;
+  min-width: 0;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  word-break: break-all;
+}
+
+.diff-stat {
+  flex: 0 0 auto;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.8rem;
+}
+
+.diff-stat .add { color: #16a34a; margin-left: 0.3rem; }
+.diff-stat .del { color: #dc2626; margin-left: 0.3rem; }
+
+.diff-note {
+  padding: 0.6rem;
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+
+.diff-body {
+  overflow-x: auto;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.78rem;
+  line-height: 1.45;
+}
+
+.hunk-header {
+  padding: 0.15rem 0.5rem;
+  color: var(--muted);
+  background: var(--surface);
+  white-space: pre;
+}
+
+.dl {
+  display: flex;
+  white-space: pre;
+  min-width: max-content;
+}
+
+.dl .ln {
+  flex: 0 0 auto;
+  width: 3.2rem;
+  padding: 0 0.5rem;
+  text-align: right;
+  color: var(--muted);
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.dl .dl-sign {
+  flex: 0 0 auto;
+  width: 1rem;
+  text-align: center;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.dl .dl-code {
+  flex: 1 1 auto;
+  padding-right: 0.75rem;
+}
+
+.dl.add { background: rgba(22, 163, 74, 0.14); }
+.dl.del { background: rgba(220, 38, 38, 0.14); }
+.dl.add .dl-sign { color: #16a34a; }
+.dl.del .dl-sign { color: #dc2626; }
+
 /* File content */
 .file-content {
   overflow-x: auto;

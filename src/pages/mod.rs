@@ -1,4 +1,5 @@
 pub mod blob;
+pub mod diff;
 pub mod repos;
 pub mod search;
 pub mod tree;
