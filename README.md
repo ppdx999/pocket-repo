@@ -1,6 +1,6 @@
 # PocketRepo
 
-> A mobile-first web app for browsing and exploring Git repositories from your phone.
+> A phone-friendly file viewer for Git repos.
 
 Developers on the go often think "how was this implemented again?", "I want to reply to that review comment", or "I want to hand this file to Claude Code." Yet GitHub's web UI and typical file browsers aren't optimized for reading code on a phone.
 
