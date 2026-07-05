@@ -51,6 +51,12 @@ Open the dev machine's Tailscale IP from your phone's browser:
 http://<dev-machine-100.x.x.x>:3000
 ```
 
+And you can start browsing your repositories:
+
+<p align="center">
+  <img src="docs/screenshot-tree.jpeg" width="40%" alt="Browsing a repository from the phone">
+</p>
+
 > Security: there is no authentication; the tailnet is the access boundary. To tighten it, bind to the Tailscale IP only, or use `127.0.0.1` + `tailscale serve`.
 
 ## License
