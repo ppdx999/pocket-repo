@@ -2,9 +2,7 @@
 
 > A phone-friendly file viewer for Git repos.
 
-Developers on the go often think "how was this implemented again?", "I want to reply to that review comment", or "I want to hand this file to Claude Code." Yet GitHub's web UI and typical file browsers aren't optimized for reading code on a phone.
-
-PocketRepo runs as a lightweight server (a single binary) on your home or dev machine, and you reach it securely from your phone over a private network such as Tailscale.
+PocketRepo runs a small web server on your dev machine (e.g. `http://localhost:3000`) so you can browse a repository's files comfortably from your phone's browser. It assumes your dev machine and phone can reach each other directly over a private VPN network, such as Tailscale.
 
 ## Screenshots
 
