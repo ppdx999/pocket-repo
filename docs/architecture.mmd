@@ -1,0 +1,10 @@
+flowchart LR
+    phone["Mobile browser"]
+
+    subgraph dev["Dev machine (home / office)"]
+        server["pocket-repo<br/>(single binary, launchd daemon)"]
+        repos[("Local Git repos<br/>~/ghq")]
+        server -->|"read-only (git2)"| repos
+    end
+
+    phone -->|"Tailscale (private network)"| server

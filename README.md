@@ -22,20 +22,15 @@ PocketRepo runs as a lightweight server (a single binary) on your home or dev ma
 
 ## How it works
 
-```mermaid
-flowchart LR
-    phone["📱 Mobile browser"]
-
-    subgraph dev["💻 Dev machine (home / office)"]
-        server["pocket-repo (single binary, launchd daemon)"]
-        repos[("Local Git repos ~/ghq")]
-        server -->|"read-only (git2)"| repos
-    end
-
-    phone -->|"Tailscale (private network)"| server
-```
+<p align="center">
+  <img src="docs/architecture.png" width="90%" alt="Architecture: phone → Tailscale → pocket-repo on the dev machine → local Git repos">
+</p>
 
 The server runs on your dev machine and reads local Git repositories directly. Your phone reaches it over Tailscale — nothing is exposed to the public internet.
+
+<!-- Diagram source: docs/architecture.mmd — regenerate with:
+     npx -y @mermaid-js/mermaid-cli -i docs/architecture.mmd -o docs/architecture.png -b white -s 2 -->
+
 
 ## Goals
 
