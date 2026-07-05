@@ -20,6 +20,24 @@ PocketRepo runs as a lightweight server (a single binary) on your home or dev ma
   <em>From left: directory tree / file view / Git diff</em>
 </p>
 
+## How it works
+
+```mermaid
+flowchart LR
+    B["📱 Mobile browser"]
+
+    subgraph dev["💻 Dev machine (home / office)"]
+      direction TB
+      S["pocket-repo<br/>single binary · launchd daemon"]
+      R[("Local Git repos<br/>~/ghq/…")]
+      S -- "read-only (git2)" --> R
+    end
+
+    B -- "Tailscale private network<br/>http://100.x.x.x:3000" --> S
+```
+
+The server runs on your dev machine and reads local Git repositories directly. Your phone reaches it over Tailscale — nothing is exposed to the public internet.
+
 ## Goals
 
 * A UI optimized for reading code on a phone
