@@ -67,8 +67,10 @@ impl Page for SearchPage {
                             (recent_link())
                         }
                     }
-                    (breadcrumb(repo, "", ref_name, false))
-                    (branch_chip(repo, &branch))
+                    div class="breadcrumb-row" {
+                        (breadcrumb(repo, "", ref_name, false))
+                        (branch_chip(repo, &branch))
+                    }
                     (search_bar(repo, &model.query, ref_name))
                 }
                 main {

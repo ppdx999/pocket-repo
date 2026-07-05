@@ -64,8 +64,10 @@ impl Page for BlobPage {
                             (copy_button(path))
                         }
                     }
-                    (breadcrumb(repo, path, ref_name, true))
-                    (branch_chip(repo, &branch))
+                    div class="breadcrumb-row" {
+                        (breadcrumb(repo, path, ref_name, true))
+                        (branch_chip(repo, &branch))
+                    }
                 }
                 main {
                     @match git::resolve(repo, ref_name, path) {

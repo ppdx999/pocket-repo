@@ -101,8 +101,10 @@ impl Page for TreePage {
                             a class="text-action" href=(format!("/repo/{repo}/diff")) { "Changes" }
                         }
                     }
-                    (breadcrumb(repo, path, ref_name, false))
-                    (branch_chip(repo, &branch))
+                    div class="breadcrumb-row" {
+                        (breadcrumb(repo, path, ref_name, false))
+                        (branch_chip(repo, &branch))
+                    }
                 }
                 main {
                     @match git::resolve(repo, ref_name, path) {
