@@ -60,7 +60,7 @@ pub struct Blob {
 fn open(repo_name: &str) -> Result<Repository> {
     let path = config::repo_path(repo_name)
         .ok_or_else(|| GitError::RepoNotFound(repo_name.to_string()))?;
-    Ok(Repository::open(path)?)
+    Ok(Repository::open(&path)?)
 }
 
 fn head_tree(repo: &Repository) -> Result<Tree<'_>> {
