@@ -57,6 +57,12 @@ a {
   z-index: 10;
 }
 
+/* File view: let the header scroll away with the content instead of sticking,
+   maximizing reading space. */
+.app-header-flow {
+  position: static;
+}
+
 .app-header h1 {
   margin: 0;
   font-size: 1.25rem;
@@ -628,6 +634,26 @@ button.entry-icon:active {
   overflow-x: auto;
   border: 1px solid var(--border);
   border-radius: 6px;
+}
+
+/* Image file view */
+.file-image {
+  text-align: center;
+}
+
+.file-image img {
+  max-width: 100%;
+  height: auto;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  /* checkerboard so transparent images read clearly */
+  background-image:
+    linear-gradient(45deg, var(--surface) 25%, transparent 25%),
+    linear-gradient(-45deg, var(--surface) 25%, transparent 25%),
+    linear-gradient(45deg, transparent 75%, var(--surface) 75%),
+    linear-gradient(-45deg, transparent 75%, var(--surface) 75%);
+  background-size: 16px 16px;
+  background-position: 0 0, 0 8px, 8px -8px, -8px 0;
 }
 
 .file-content pre {

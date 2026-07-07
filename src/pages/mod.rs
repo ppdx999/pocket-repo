@@ -89,6 +89,32 @@ pub fn recent_link() -> Markup {
     }
 }
 
+/// Guesses a content type from a file's extension (for raw byte serving).
+pub fn content_type_for(path: &str) -> &'static str {
+    match path
+        .rsplit('.')
+        .next()
+        .unwrap_or("")
+        .to_ascii_lowercase()
+        .as_str()
+    {
+        "png" => "image/png",
+        "jpg" | "jpeg" => "image/jpeg",
+        "gif" => "image/gif",
+        "webp" => "image/webp",
+        "avif" => "image/avif",
+        "bmp" => "image/bmp",
+        "ico" => "image/x-icon",
+        "svg" => "image/svg+xml",
+        _ => "application/octet-stream",
+    }
+}
+
+/// Whether a path should be rendered as an image in the file view.
+pub fn is_image_path(path: &str) -> bool {
+    content_type_for(path).starts_with("image/")
+}
+
 /// Splits a path into its directory prefix (with trailing slash, or "") and its
 /// basename, so results can render the dir muted and the filename emphasized.
 pub fn split_path(path: &str) -> (&str, &str) {

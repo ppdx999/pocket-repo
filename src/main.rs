@@ -40,6 +40,27 @@ async fn app_js() -> ([(header::HeaderName, &'static str); 1], &'static str) {
     )
 }
 
+/// Serves a blob's raw bytes with a guessed content type — used by the file
+/// view to render images (and available for direct download of any file).
+async fn raw_blob(
+    axum::extract::Path((repo, path)): axum::extract::Path<(String, String)>,
+    axum::extract::Query(params): axum::extract::Query<std::collections::HashMap<String, String>>,
+) -> axum::response::Response {
+    use axum::response::IntoResponse;
+    let ref_name = params.get("ref").map(String::as_str).filter(|s| !s.is_empty());
+    match git::resolve(&repo, ref_name, &path) {
+        Ok(git::Resolved::File(blob)) => (
+            [
+                (header::CONTENT_TYPE, pages::content_type_for(&path)),
+                (header::X_CONTENT_TYPE_OPTIONS, "nosniff"),
+            ],
+            blob.content,
+        )
+            .into_response(),
+        _ => StatusCode::NOT_FOUND.into_response(),
+    }
+}
+
 const HELP: &str = "\
 pocket-repo — browse Git repositories from your phone
 
@@ -105,6 +126,7 @@ async fn main() {
         .route("/static/runtime.js", axum::routing::get(runtime_js))
         .route("/static/app.css", axum::routing::get(app_css))
         .route("/static/app.js", axum::routing::get(app_js))
+        .route("/repo/{repo}/raw/{*path}", axum::routing::get(raw_blob))
         .fallback(|| async { (StatusCode::NOT_FOUND, "Not Found") })
         // Negotiates br / zstd / gzip from Accept-Encoding — worthwhile since
         // pages (highlighted files, diffs) are repetitive text served over

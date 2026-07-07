@@ -4,7 +4,9 @@ use serde::{Deserialize, Serialize};
 use crate::framework::{Page, PageContext, Update};
 use crate::git::{self, Resolved};
 use crate::highlight;
-use crate::pages::{breadcrumb, branch_chip, copy_button, recent_link, ref_query, search_link};
+use crate::pages::{
+    breadcrumb, branch_chip, copy_button, is_image_path, recent_link, ref_query, search_link,
+};
 
 pub struct BlobPage;
 
@@ -55,7 +57,7 @@ impl Page for BlobPage {
 
         html! {
             div id="maudliver-root" class="page" data-recent-repo=(repo) data-recent-path=(path) {
-                header class="app-header" {
+                header class="app-header app-header-flow" {
                     div class="header-top" {
                         a href="/" class="home-link" { "PocketRepo" }
                         div class="header-actions" {
@@ -70,31 +72,40 @@ impl Page for BlobPage {
                     }
                 }
                 main {
-                    @match git::resolve(repo, ref_name, path) {
-                        Ok(Resolved::File(blob)) => {
-                            @if blob.is_binary {
-                                p class="notice" { "Binary file not shown (" (blob.content.len()) " bytes)" }
-                            } @else {
-                                @match String::from_utf8(blob.content) {
-                                    Ok(text) => {
-                                        div id="file-content" class="file-content" {
-                                            (highlight::to_html(&text, file_name))
-                                        }
+                    @if is_image_path(path) {
+                        div class="file-image" {
+                            img src=(format!("/repo/{repo}/raw/{path}{rq}")) alt=(file_name);
+                        }
+                    } @else {
+                        @match git::resolve(repo, ref_name, path) {
+                            Ok(Resolved::File(blob)) => {
+                                @if blob.is_binary {
+                                    p class="notice" {
+                                        "Binary file not shown (" (blob.content.len()) " bytes). "
+                                        a href=(format!("/repo/{repo}/raw/{path}{rq}")) { "Open raw" }
                                     }
-                                    Err(_) => {
-                                        p class="notice" { "File is not valid UTF-8 and cannot be displayed." }
+                                } @else {
+                                    @match String::from_utf8(blob.content) {
+                                        Ok(text) => {
+                                            div id="file-content" class="file-content" {
+                                                (highlight::to_html(&text, file_name))
+                                            }
+                                        }
+                                        Err(_) => {
+                                            p class="notice" { "File is not valid UTF-8 and cannot be displayed." }
+                                        }
                                     }
                                 }
                             }
-                        }
-                        Ok(Resolved::Dir(_)) => {
-                            p class="notice" {
-                                "This path is a directory. "
-                                a href=(format!("/repo/{repo}/tree/{path}{rq}")) { "Browse directory" }
+                            Ok(Resolved::Dir(_)) => {
+                                p class="notice" {
+                                    "This path is a directory. "
+                                    a href=(format!("/repo/{repo}/tree/{path}{rq}")) { "Browse directory" }
+                                }
                             }
-                        }
-                        Err(e) => {
-                            p class="error" { (e.to_string()) }
+                            Err(e) => {
+                                p class="error" { (e.to_string()) }
+                            }
                         }
                     }
                 }
